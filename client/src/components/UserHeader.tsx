@@ -26,7 +26,7 @@ function UserHeader() {
           </Flex>
         </Box>
         <Box>
-          <Avatar name="Mark Zuckberg" src="/zuck-avatar.png" size="xl" />
+          <Avatar name="Mark Zuckberg" src="/zuck-avatar.png" size={{ base: "md", md: "xl" }} />
         </Box>
       </Flex>
       <Text>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusamus</Text>
