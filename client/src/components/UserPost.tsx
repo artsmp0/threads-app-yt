@@ -17,7 +17,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }: UserPostProps) => {
     <Link to={"/markzuckerberg/post/1"}>
       <Flex gap={3} mb={4} py={5}>
         <Flex flexDirection={"column"} alignItems={"center"}>
-          <Avatar size="md" name="Mark Zuckerberg" src="/zuck-avatar.png" />
+          <Avatar size={"md"} name="Mark Zuckerberg" src="/zuck-avatar.png" />
           <Box w="1px" h={"full"} bg="gray.light" mt={2} mb={8}></Box>
           <Box position={"relative"} w={"full"}>
             <Avatar

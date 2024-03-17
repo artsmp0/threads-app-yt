@@ -19,10 +19,12 @@ const config = {
   useSystemColorMode: true,
 };
 
-const colors = {
-  gray: {
-    light: "#616161",
-    dark: "#1e1e1e",
+const semanticTokens = {
+  colors: {
+    gray: {
+      light: { default: "#1e1e1e", _dark: "#818181" },
+      dark: { default: "#ccc", _dark: "#1e1e1e" },
+    },
   },
 };
 
@@ -31,7 +33,7 @@ const fonts = {
   body: `'Inter', sans-serif`,
 };
 
-const theme = extendTheme({ config, styles, colors, fonts });
+const theme = extendTheme({ config, styles, fonts, semanticTokens });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ChakraProvider theme={theme}>
