@@ -22,7 +22,7 @@ export const create = async (req, res) => {
     const newPost = new Post({ text, img, postedBy });
     await newPost.save();
     res.status(201).json({ message: "Post created successfully", newPost });
-  } catch (error) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log(err);
   }
@@ -33,7 +33,7 @@ export const getPost = async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found." });
     res.status(200).json({ post });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log(err);
   }
@@ -49,7 +49,7 @@ export const deletePost = async (req, res) => {
     await Post.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ message: "Post deleted successfully" });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log(err);
   }
@@ -71,7 +71,7 @@ export const like = async (req, res) => {
       await Post.updateOne({ _id: postId }, { $push: { likes: userId } });
       res.status(200).json({ message: "Post liked successfully." });
     }
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log(err);
   }
@@ -96,7 +96,7 @@ export const reply = async (req, res) => {
     post.replies.push(reply);
     await post.save();
     res.status(200).json({ message: "Reply added successfully", post });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log(err);
   }
@@ -112,7 +112,7 @@ export const feed = async (req, res) => {
     const following = user.following;
     const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({ createdAt: -1 });
     res.status(200).json({ feedPosts });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log(123, err);
   }

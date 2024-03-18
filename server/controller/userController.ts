@@ -33,7 +33,7 @@ export const signup = async (req, res) => {
     } else {
       res.status(400).json({ message: "Invalid user data." });
     }
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log("Error in signup user: ", err.message);
   }
@@ -56,7 +56,7 @@ export const login = async (req, res) => {
       username: user.username,
       email: user.email,
     });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log("Error in login user: ", err.message);
   }
@@ -66,7 +66,7 @@ export const logout = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 1 });
     res.status(200).json({ message: "User logged out successfully" });
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log("Error in logout user: ", err.message);
   }
@@ -93,9 +93,9 @@ export const update = async (req, res) => {
     user.bio = bio || user.bio;
 
     user = await user.save();
-    user = await User.findById(user._id).select("-password");
-    res.status(200).json({ message: "Profile updated successfully", user });
-  } catch (err) {
+    const returnUser = await User.findById(user._id).select("-password");
+    res.status(200).json({ message: "Profile updated successfully", user: returnUser });
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log("Error in update user: ", err.message);
   }
@@ -121,7 +121,7 @@ export const follow = async (req, res) => {
       await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
       res.status(200).json({ message: "User followed successfully" });
     }
-  } catch (err) {
+  } catch (err: any) {
     res.status(500).json({ message: err.message });
     console.log("Error in followUnFollowUser: ", err.message);
   }
