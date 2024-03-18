@@ -1,8 +1,9 @@
-import User from "../model/userModel.js";
 import bcrypt from "bcryptjs";
-import { genTokenAndSetCookie } from "../util/genTokenAndSetCookie.js";
+import User from "../model/userModel";
+import { genTokenAndSetCookie } from "../util/genTokenAndSetCookie";
+import { Request, Response } from "express";
 
-export const signup = async (req, res) => {
+export const signup = async (req: Request, res: Response) => {
   try {
     const { name, username, email, password } = req.body;
 
@@ -39,7 +40,7 @@ export const signup = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
@@ -62,7 +63,7 @@ export const login = async (req, res) => {
   }
 };
 
-export const logout = async (req, res) => {
+export const logout = async (req: Request, res: Response) => {
   try {
     res.cookie("jwt", "", { maxAge: 1 });
     res.status(200).json({ message: "User logged out successfully" });
@@ -72,9 +73,9 @@ export const logout = async (req, res) => {
   }
 };
 
-export const update = async (req, res) => {
+export const update = async (req: Request, res: Response) => {
   const { name, email, username, password, profilePic, bio } = req.body;
-  const userId = req.user._id;
+  const userId = req.user!._id;
 
   try {
     let user = await User.findById(userId);
@@ -101,24 +102,24 @@ export const update = async (req, res) => {
   }
 };
 
-export const follow = async (req, res) => {
+export const follow = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const userToModify = await User.findById(id);
-    const currentUser = await User.findById(req.user._id);
-    if (id === req.user._id.toString()) return res.status(400).json({ message: "You cannot follow/unfollow yourself." });
+    const currentUser = await User.findById(req.user!._id);
+    if (id === req.user!._id.toString()) return res.status(400).json({ message: "You cannot follow/unfollow yourself." });
     if (!userToModify || !currentUser) return res.status(400).json({ message: "User not found" });
 
     const isFollowing = currentUser.following.includes(id);
     if (isFollowing) {
       // unfollow
-      await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
+      await User.findByIdAndUpdate(id, { $pull: { followers: req.user!._id } });
+      await User.findByIdAndUpdate(req.user!._id, { $pull: { following: id } });
       res.status(200).json({ message: "User unfollowed successfully" });
     } else {
       // follow
-      await User.findByIdAndUpdate(id, { $push: { followers: req.user._id } });
-      await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
+      await User.findByIdAndUpdate(id, { $push: { followers: req.user!._id } });
+      await User.findByIdAndUpdate(req.user!._id, { $push: { following: id } });
       res.status(200).json({ message: "User followed successfully" });
     }
   } catch (err: any) {

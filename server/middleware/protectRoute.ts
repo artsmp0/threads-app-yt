@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
-import User from "../model/userModel.js";
+import User from "../model/userModel";
+import { Request } from "express";
 
-export const protectRoute = async (req, res, next) => {
+export const protectRoute = async (req: Request, res, next) => {
   try {
     const token = req.cookies.jwt;
 
@@ -11,8 +12,7 @@ export const protectRoute = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
     const user = await User.findById(decoded.userId).select("-password");
-
-    req.user = user;
+    req.user = user!;
     next();
   } catch (err: any) {
     res.status(500).json({ message: err.message });

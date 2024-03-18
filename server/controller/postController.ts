@@ -1,7 +1,8 @@
-import Post from "../model/postModel.js";
-import User from "../model/userModel.js";
+import { Request, Response } from "express";
+import Post from "../model/postModel";
+import User from "../model/userModel";
 
-export const create = async (req, res) => {
+export const create = async (req: Request, res: Response) => {
   try {
     const { text, img, postedBy } = req.body;
 
@@ -10,7 +11,7 @@ export const create = async (req, res) => {
     const user = await User.findById(postedBy);
     if (!user) return res.status(404).json({ message: "User not found." });
 
-    if (user._id.toString() !== req.user._id.toString()) {
+    if (user._id.toString() !== req.user?._id.toString()) {
       return res.status(401).json({ message: "Unauthorized to create post" });
     }
 
@@ -28,7 +29,7 @@ export const create = async (req, res) => {
   }
 };
 
-export const getPost = async (req, res) => {
+export const getPost = async (req: Request, res: Response) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found." });
@@ -39,11 +40,11 @@ export const getPost = async (req, res) => {
   }
 };
 
-export const deletePost = async (req, res) => {
+export const deletePost = async (req: Request, res: Response) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found." });
-    if (post.postedBy.toString() !== req.user._id.toString()) {
+    if (post.postedBy.toString() !== req.user?._id.toString()) {
       return res.status(401).json({ message: "Unauthorized to delete post" });
     }
     await Post.findByIdAndDelete(req.params.id);
@@ -55,10 +56,10 @@ export const deletePost = async (req, res) => {
   }
 };
 
-export const like = async (req, res) => {
+export const like = async (req: Request, res: Response) => {
   try {
     const postId = req.params.id;
-    const userId = req.user._id;
+    const userId = req.user!._id;
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post not found." });
     const isUserLiked = post.likes.includes(userId);
@@ -77,13 +78,13 @@ export const like = async (req, res) => {
   }
 };
 
-export const reply = async (req, res) => {
+export const reply = async (req: Request, res: Response) => {
   try {
     const { text } = req.body;
     const postId = req.params.id;
-    const userId = req.user._id;
-    const userProfilePic = req.user.profilePic;
-    const username = req.user.name;
+    const userId = req.user!._id;
+    const userProfilePic = req.user!.profilePic;
+    const username = req.user!.name;
 
     if (!text) {
       return res.status(400).json({ message: "Text field is required" });
@@ -102,9 +103,9 @@ export const reply = async (req, res) => {
   }
 };
 
-export const feed = async (req, res) => {
+export const feed = async (req: Request, res: Response) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user!._id;
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -114,6 +115,6 @@ export const feed = async (req, res) => {
     res.status(200).json({ feedPosts });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
-    console.log(123, err);
+    console.log(err);
   }
 };
