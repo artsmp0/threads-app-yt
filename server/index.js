@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import { connectDB } from "./controller/connectDB.js";
 import userRouter from "./router/userRouter.js";
 
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(express.json()); // To parse JSON data in the req.body
 app.use(express.urlencoded({ extended: true })); // To parse form data in the req.body
+app.use(cookieParser());
 
 app.use("/api/users", userRouter);
 
