@@ -9,7 +9,7 @@ export const signup = async (req: Request, res: Response) => {
 
     const existedUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existedUser) {
-      return res.status(400).json({ message: "User already exists." });
+      return res.status(400).json({ error: "User already exists." });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -32,10 +32,10 @@ export const signup = async (req: Request, res: Response) => {
         email: newUser.email,
       });
     } else {
-      res.status(400).json({ message: "Invalid user data." });
+      res.status(400).json({ error: "Invalid user data." });
     }
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
     console.log("Error in signup user: ", err.message);
   }
 };
@@ -47,7 +47,7 @@ export const login = async (req: Request, res: Response) => {
     const user = await User.findOne({ username });
     const isPasswordCorrect = await bcrypt.compare(password, user?.password);
     if (!user || !isPasswordCorrect) {
-      return res.status(400).json({ message: "Invalid username or password." });
+      return res.status(400).json({ error: "Invalid username or password." });
     }
 
     genTokenAndSetCookie(user._id, res);
@@ -58,7 +58,7 @@ export const login = async (req: Request, res: Response) => {
       email: user.email,
     });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
     console.log("Error in login user: ", err.message);
   }
 };
@@ -68,7 +68,7 @@ export const logout = async (req: Request, res: Response) => {
     res.cookie("jwt", "", { maxAge: 1 });
     res.status(200).json({ message: "User logged out successfully" });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
     console.log("Error in logout user: ", err.message);
   }
 };
@@ -79,8 +79,8 @@ export const update = async (req: Request, res: Response) => {
 
   try {
     let user = await User.findById(userId);
-    if (!user) return res.status(400).json({ message: "User not found." });
-    if (req.params.id !== userId.toString()) return res.status(400).json({ message: "You cannot update other user's profile." });
+    if (!user) return res.status(400).json({ error: "User not found." });
+    if (req.params.id !== userId.toString()) return res.status(400).json({ error: "You cannot update other user's profile." });
 
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -97,7 +97,7 @@ export const update = async (req: Request, res: Response) => {
     const returnUser = await User.findById(user._id).select("-password");
     res.status(200).json({ message: "Profile updated successfully", user: returnUser });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
     console.log("Error in update user: ", err.message);
   }
 };
@@ -107,8 +107,8 @@ export const follow = async (req: Request, res: Response) => {
     const { id } = req.params;
     const userToModify = await User.findById(id);
     const currentUser = await User.findById(req.user!._id);
-    if (id === req.user!._id.toString()) return res.status(400).json({ message: "You cannot follow/unfollow yourself." });
-    if (!userToModify || !currentUser) return res.status(400).json({ message: "User not found" });
+    if (id === req.user!._id.toString()) return res.status(400).json({ error: "You cannot follow/unfollow yourself." });
+    if (!userToModify || !currentUser) return res.status(400).json({ error: "User not found" });
 
     const isFollowing = currentUser.following.includes(id);
     if (isFollowing) {
@@ -123,7 +123,7 @@ export const follow = async (req: Request, res: Response) => {
       res.status(200).json({ message: "User followed successfully" });
     }
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
     console.log("Error in followUnFollowUser: ", err.message);
   }
 };

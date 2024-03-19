@@ -2,24 +2,26 @@ import { Container } from "@chakra-ui/react";
 import UserPage from "./pages/UserPage";
 import PostPage from "./pages/PostPage";
 import Header from "./components/Header";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
-const router = createBrowserRouter([
-  {
-    path: "/:username",
-    element: <UserPage />,
-  },
-  {
-    path: "/:username/post/:id",
-    element: <PostPage />,
-  },
-]);
+import { Navigate, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import AuthPage from "./pages/AuthPage";
+import { useRecoilValue } from "recoil";
+import userAtom from "./atoms/userAtom";
+import LogoutButton from "./components/LogoutButton";
 
 function App() {
+  const user = useRecoilValue(userAtom);
   return (
     <Container maxW={640}>
       <Header />
-      <RouterProvider router={router} />
+      <Routes>
+        <Route path="/" element={user ? <HomePage /> : <Navigate to="/auth" />} />
+        <Route path="/auth" element={!user ? <AuthPage /> : <Navigate to="/" />} />
+
+        <Route path="/:username" element={<UserPage />} />
+        <Route path="/:username/post/:pid" element={<PostPage />} />
+      </Routes>
+      {user && <LogoutButton />}
     </Container>
   );
 }
