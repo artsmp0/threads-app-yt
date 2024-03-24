@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../model/userModel";
 import { genTokenAndSetCookie } from "../util/genTokenAndSetCookie";
 import { Request, Response } from "express";
+import { v2 as cloudinary } from "cloudinary";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -25,12 +26,8 @@ export const signup = async (req: Request, res: Response) => {
 
     if (newUser) {
       genTokenAndSetCookie(newUser._id, res);
-      res.status(201).json({
-        id: newUser._id,
-        name: newUser.name,
-        username: newUser.username,
-        email: newUser.email,
-      });
+      newUser.password = undefined;
+      res.status(201).json(newUser);
     } else {
       res.status(400).json({ error: "Invalid user data." });
     }
@@ -51,12 +48,8 @@ export const login = async (req: Request, res: Response) => {
     }
 
     genTokenAndSetCookie(user._id, res);
-
-    res.status(200).json({
-      name: user.name,
-      username: user.username,
-      email: user.email,
-    });
+    user.password = undefined;
+    res.status(200).json(user);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
     console.log("Error in login user: ", err.message);
@@ -74,7 +67,8 @@ export const logout = async (req: Request, res: Response) => {
 };
 
 export const update = async (req: Request, res: Response) => {
-  const { name, email, username, password, profilePic, bio } = req.body;
+  const { name, email, username, password, bio } = req.body;
+  let { profilePic } = req.body;
   const userId = req.user!._id;
 
   try {
@@ -87,6 +81,15 @@ export const update = async (req: Request, res: Response) => {
       const hashedPassword = await bcrypt.hash(password, salt);
       user.password = hashedPassword;
     }
+
+    if (profilePic) {
+      if (user.profilePic) {
+        await cloudinary.uploader.destroy(user.profilePic.split("/").pop()!.split(".")[0]);
+      }
+      const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+      profilePic = uploadedResponse.secure_url;
+    }
+
     user.name = name || user.name;
     user.email = email || user.email;
     user.username = username || user.username;
@@ -95,7 +98,7 @@ export const update = async (req: Request, res: Response) => {
 
     user = await user.save();
     const returnUser = await User.findById(user._id).select("-password");
-    res.status(200).json({ message: "Profile updated successfully", user: returnUser });
+    res.status(200).json(returnUser);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
     console.log("Error in update user: ", err.message);
