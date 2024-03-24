@@ -119,7 +119,7 @@ export const feed = async (req: Request, res: Response) => {
     }
     const following = user.following;
     const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({ createdAt: -1 });
-    res.status(200).json({ feedPosts });
+    res.status(200).json(feedPosts);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
     console.log(err);

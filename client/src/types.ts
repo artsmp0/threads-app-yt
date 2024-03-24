@@ -9,3 +9,17 @@ export interface User {
   followers: string[];
   following: string[];
 }
+
+export interface Post {
+  _id: string;
+  text: string;
+  img?: string;
+  likes: number[];
+  createdAt: string;
+  replies: {
+    userId: string;
+    text: string;
+    userProfilePic: string;
+    username: string;
+  }[];
+}
