@@ -23,6 +23,7 @@ const usePreviewImg = () => {
     fileRef,
     imgUrl,
     handleImageChange,
+    setImgUrl,
   };
 };
 
