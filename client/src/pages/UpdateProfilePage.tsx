@@ -9,6 +9,7 @@ const UpdateProfilePage = () => {
   const [user, setUser] = useRecoilState(userAtom);
   const { fileRef, handleImageChange, imgUrl } = usePreviewImg();
   const showToast = useShowToast();
+  const [updating, setUpdating] = useState(false);
   const [inputs, setInputs] = useState({
     name: user?.name ?? "",
     username: user?.username ?? "",
@@ -18,6 +19,7 @@ const UpdateProfilePage = () => {
   });
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setUpdating(true);
     try {
       const res = await fetch(`/api/users/update/${user!._id}`, {
         method: "PUT",
@@ -36,6 +38,8 @@ const UpdateProfilePage = () => {
       localStorage.setItem("user-threads", JSON.stringify(data));
     } catch (error: any) {
       showToast({ description: error, status: "error" });
+    } finally {
+      setUpdating(false);
     }
   };
   return (
@@ -136,6 +140,7 @@ const UpdateProfilePage = () => {
                 bg: "green.500",
               }}
               type="submit"
+              isLoading={updating}
             >
               Submit
             </Button>

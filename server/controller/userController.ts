@@ -3,6 +3,7 @@ import User from "../model/userModel";
 import { genTokenAndSetCookie } from "../util/genTokenAndSetCookie";
 import { Request, Response } from "express";
 import { v2 as cloudinary } from "cloudinary";
+import mongoose from "mongoose";
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -128,5 +129,30 @@ export const follow = async (req: Request, res: Response) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
     console.log("Error in followUnFollowUser: ", err.message);
+  }
+};
+
+export const profile = async (req: Request, res: Response) => {
+  // We will fetch user profile either with username or userId
+  // query is either username or userId
+  const { query } = req.params;
+
+  try {
+    let user: any;
+
+    // query is userId
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      user = await User.findOne({ _id: query }).select("-password").select("-updatedAt");
+    } else {
+      // query is username
+      user = await User.findOne({ username: query }).select("-password").select("-updatedAt");
+    }
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.status(200).json(user);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+    console.log("Error in getUserProfile: ", err.message);
   }
 };
