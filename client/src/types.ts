@@ -14,7 +14,7 @@ export interface Post {
   _id: string;
   text: string;
   img?: string;
-  likes: number[];
+  likes: string[];
   createdAt: string;
   replies: {
     userId: string;
