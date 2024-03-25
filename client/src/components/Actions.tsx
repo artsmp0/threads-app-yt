@@ -1,4 +1,19 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { ReactEventHandler, useState } from "react";
 import { Post } from "../types";
 import { useRecoilValue } from "recoil";
@@ -37,11 +52,40 @@ const Actions = ({ post: post_ }: ActionsProps) => {
       setIsLiking(false);
     }
   };
+
+  // reply
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [reply, setReply] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
+  const handleReply = async () => {
+    if (!currentUser) return showToast({ status: "error", description: "You need to be logged in to reply to a post" });
+    if (isReplying) return;
+    setIsReplying(true);
+    try {
+      const res = await fetch(`/api/posts/reply/${post_._id}`, {
+        method: "PUT",
+        body: JSON.stringify({ text: reply }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (data.error) return showToast({ status: "error", description: data.error });
+      setPost(data);
+      showToast({ status: "success", description: "Reply posted successfully" });
+      onClose();
+      setReply("");
+    } catch (error: any) {
+      showToast({ status: "error", description: error.message });
+    } finally {
+      setIsReplying(false);
+    }
+  };
   return (
     <Flex direction={"column"}>
       <Flex gap={3} my={2} onClick={(e) => e.preventDefault()}>
         <LikeSVG liked={liked} onClick={handleLike} />
-        <CommentSVG />
+        <CommentSVG onClick={() => onOpen()} />
         <RepostSVG />
         <ShareSVG />
       </Flex>
@@ -55,6 +99,25 @@ const Actions = ({ post: post_ }: ActionsProps) => {
           {post.likes.length} likes
         </Text>
       </Flex>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader></ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <Input placeholder="Reply goes here.." value={reply} onChange={(e) => setReply(e.target.value)} />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" size={"sm"} mr={3} isLoading={isReplying} onClick={handleReply}>
+              Reply
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 };
@@ -80,9 +143,9 @@ const LikeSVG = ({ liked, onClick }: { liked: boolean; onClick: ReactEventHandle
   );
 };
 
-const CommentSVG = () => {
+const CommentSVG = (props: any) => {
   return (
-    <svg aria-label="Comment" color="" fill="" height="20" role="img" viewBox="0 0 24 24" width="20">
+    <svg {...props} aria-label="Comment" color="" fill="" height="20" role="img" viewBox="0 0 24 24" width="20">
       <title>Comment</title>
       <path
         d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
@@ -95,9 +158,9 @@ const CommentSVG = () => {
   );
 };
 
-const RepostSVG = () => {
+const RepostSVG = (props: any) => {
   return (
-    <svg aria-label="Repost" color="currentColor" fill="currentColor" height="20" role="img" viewBox="0 0 24 24" width="20">
+    <svg {...props} aria-label="Repost" color="currentColor" fill="currentColor" height="20" role="img" viewBox="0 0 24 24" width="20">
       <title>Repost</title>
       <path
         fill=""
@@ -107,9 +170,9 @@ const RepostSVG = () => {
   );
 };
 
-const ShareSVG = () => {
+const ShareSVG = (props: any) => {
   return (
-    <svg aria-label="Share" color="" fill="rgb(243, 245, 247)" height="20" role="img" viewBox="0 0 24 24" width="20">
+    <svg {...props} aria-label="Share" color="" fill="rgb(243, 245, 247)" height="20" role="img" viewBox="0 0 24 24" width="20">
       <title>Share</title>
       <line fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="2" x1="22" x2="9.218" y1="3" y2="10.083"></line>
       <polygon
