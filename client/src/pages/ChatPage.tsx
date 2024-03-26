@@ -3,8 +3,32 @@ import { Box, Button, Flex, Input, Skeleton, SkeletonCircle, Text, useColorModeV
 import { GiConversation } from "react-icons/gi";
 import { Conversation } from "../components/Conversation";
 import { MessageContainer } from "../components/MessageContainer";
+import { useEffect, useState } from "react";
+import useShowToast from "../hooks/useShowToast";
+import { useRecoilState } from "recoil";
+import { conversationsAtom } from "../atoms/messagesAtom";
 
 export const ChatPage = () => {
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [conversations, setConversations] = useRecoilState(conversationsAtom);
+  const showToast = useShowToast();
+  useEffect(() => {
+    const getConversations = async () => {
+      try {
+        const res = await fetch("/api/messages/conversations");
+        const data = await res.json();
+        if (data.error) showToast({ description: data.error, status: "error" });
+        console.log(data);
+        setConversations(data);
+      } catch (error: any) {
+        showToast({ description: error.message, status: "error" });
+      } finally {
+        setLoadingConversations(false);
+      }
+    };
+
+    getConversations();
+  }, []);
   return (
     <Box position={"absolute"} left={"50%"} transform={"translateX(-50%)"} w={{ base: "100%", md: "80%", lg: "750px" }} p={4}>
       <Flex
@@ -40,7 +64,7 @@ export const ChatPage = () => {
               </Button>
             </Flex>
           </form>
-          {true &&
+          {loadingConversations &&
             [0, 1, 2, 3, 4].map((_, i) => (
               <Flex key={i} gap={4} alignItems={"center"} p={"1"} borderRadius={"md"}>
                 <Box>
@@ -52,9 +76,8 @@ export const ChatPage = () => {
                 </Flex>
               </Flex>
             ))}
-          <Conversation />
-          <Conversation />
-          <Conversation />
+          {!loadingConversations &&
+            conversations.map((conversation) => <Conversation key={conversation._id} conversation={conversation} />)}
         </Flex>
         {false && (
           <Flex flex={70} borderRadius={"md"} p={2} flexDir={"column"} alignItems={"center"} justifyContent={"center"} height={"400px"}>
