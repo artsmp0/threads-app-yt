@@ -2,16 +2,17 @@ import { useParams } from "react-router-dom";
 import UserHeader from "../components/UserHeader";
 import useShowToast from "../hooks/useShowToast";
 import { useEffect, useState } from "react";
-import { IPost } from "../types";
 import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post";
 import { useGetUserProfile } from "../hooks/useGetUserProfile";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom";
 
 function UserPage() {
   const { user, loading } = useGetUserProfile();
   const { username } = useParams();
   const showToast = useShowToast();
-  const [posts, setPosts] = useState<IPost[]>([]);
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const [fetchingPosts, setFetchingPosts] = useState(false);
   useEffect(() => {
     const getFeedPosts = async () => {
@@ -24,7 +25,6 @@ function UserPage() {
           showToast({ status: "error", description: data.error });
         }
         setPosts(data);
-        console.log("data: ", data);
       } catch (error: any) {
         console.log("error: ", error);
         showToast({ status: "error", description: error });
@@ -33,7 +33,7 @@ function UserPage() {
       }
     };
     getFeedPosts();
-  }, [username, showToast]);
+  }, [username, showToast, setPosts]);
 
   if (!user && !loading) return <h1>User not found</h1>;
 

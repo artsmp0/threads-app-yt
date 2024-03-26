@@ -2,23 +2,24 @@ import { Flex, Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import Post from "../components/Post";
-import { IPost } from "../types";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom";
 
 const HomePage = () => {
-  const [posts, setPosts] = useState<IPost[]>([]);
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const [loading, setLoading] = useState(false);
   const showToast = useShowToast();
   useEffect(() => {
     const getFeedPosts = async () => {
       try {
         setLoading(true);
+        setPosts([]);
         const res = await fetch(`/api/posts/feed`);
         const data = await res.json();
         if (data.error) {
           showToast({ status: "error", description: data.error });
         }
         setPosts(data);
-        console.log("data: ", data);
       } catch (error: any) {
         console.log("error: ", error);
         showToast({ status: "error", description: error });
@@ -28,7 +29,7 @@ const HomePage = () => {
     };
 
     getFeedPosts();
-  }, [showToast]);
+  }, [showToast, setPosts]);
   return (
     <>
       {!loading && posts.length === 0 && <h1>Follow some users to see the feed</h1>}

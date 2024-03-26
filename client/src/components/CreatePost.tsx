@@ -20,9 +20,11 @@ import {
 import { useState } from "react";
 import usePreviewImg from "../hooks/usePreviewImg";
 import { BsFillImageFill } from "react-icons/bs";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import { useParams } from "react-router-dom";
+import postsAtom from "../atoms/postsAtom";
 
 const MAX_CHAR = 500;
 
@@ -32,6 +34,8 @@ const CreatePost = () => {
   const [postText, setPostText] = useState("");
   const [remainingChar, setRemainingChar] = useState(MAX_CHAR);
   const showToast = useShowToast();
+  const [posts, setPosts] = useRecoilState(postsAtom);
+  const { username } = useParams();
   const handleTextChange = (e: any) => {
     const inputText: string = e.target.value;
     if (inputText.length > MAX_CHAR) {
@@ -43,7 +47,7 @@ const CreatePost = () => {
       setRemainingChar(MAX_CHAR - inputText.length);
     }
   };
-  const currentUser = useRecoilValue(userAtom);
+  const user = useRecoilValue(userAtom);
   const { fileRef, handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
   const handleCreatePost = async () => {
     try {
@@ -56,7 +60,7 @@ const CreatePost = () => {
         body: JSON.stringify({
           text: postText,
           img: imgUrl,
-          postedBy: currentUser?._id,
+          postedBy: user?._id,
         }),
       });
       const data = await res.json();
@@ -64,6 +68,9 @@ const CreatePost = () => {
         showToast({ status: "error", description: data.error });
       }
       showToast({ status: "success", description: "Post created successfully!" });
+      if (username === user?.username) {
+        setPosts([data, ...posts]);
+      }
       onClose();
       setPostText("");
       setImgUrl("");
@@ -79,12 +86,12 @@ const CreatePost = () => {
       <Button
         position={"fixed"}
         bottom={10}
-        right={10}
-        leftIcon={<AddIcon />}
+        right={5}
         bg={useColorModeValue("gray.300", "gray.dark")}
         onClick={onOpen}
+        size={{ base: "sm", sm: "md" }}
       >
-        Post
+        <AddIcon />
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

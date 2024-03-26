@@ -16,35 +16,49 @@ import {
 } from "@chakra-ui/react";
 import { ReactEventHandler, useState } from "react";
 import { IPost } from "../types";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import postsAtom from "../atoms/postsAtom";
 
 interface ActionsProps {
   post: IPost;
 }
 
-const Actions = ({ post: post_ }: ActionsProps) => {
-  const currentUser = useRecoilValue(userAtom);
-  console.log("post_: ", post_);
-  const [liked, setLiked] = useState(post_.likes.includes(currentUser?._id ?? ""));
+const Actions = ({ post }: ActionsProps) => {
+  const user = useRecoilValue(userAtom);
+  const [liked, setLiked] = useState(post.likes.includes(user?._id ?? ""));
   const showToast = useShowToast();
-  const [post, setPost] = useState(post_);
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const [isLiking, setIsLiking] = useState(false);
   const handleLike = async () => {
-    if (!currentUser) return showToast({ status: "error", description: "You need to be logged in to like a post" });
+    if (!user) return showToast({ status: "error", description: "You need to be logged in to like a post" });
     if (isLiking) return;
     setIsLiking(true);
     try {
-      const res = await fetch(`/api/posts/like/${post_._id}`, {
+      const res = await fetch(`/api/posts/like/${post._id}`, {
         method: "PUT",
       });
       const data = await res.json();
       if (data.error) return showToast({ status: "error", description: data.error });
       if (!liked) {
-        setPost({ ...post, likes: [...post.likes, currentUser._id] });
+        // add the id of the current user to post.likes array
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, likes: [...p.likes, user._id] };
+          }
+          return p;
+        });
+        setPosts(updatedPosts);
       } else {
-        setPost({ ...post, likes: post.likes.filter((id) => id !== currentUser._id) }); // remove the current user'
+        // remove the id of the current user from post.likes array
+        const updatedPosts = posts.map((p) => {
+          if (p._id === post._id) {
+            return { ...p, likes: p.likes.filter((id) => id !== user._id) };
+          }
+          return p;
+        });
+        setPosts(updatedPosts);
       }
       setLiked(!liked);
     } catch (error: any) {
@@ -59,11 +73,11 @@ const Actions = ({ post: post_ }: ActionsProps) => {
   const [reply, setReply] = useState("");
   const [isReplying, setIsReplying] = useState(false);
   const handleReply = async () => {
-    if (!currentUser) return showToast({ status: "error", description: "You need to be logged in to reply to a post" });
+    if (!user) return showToast({ status: "error", description: "You need to be logged in to reply to a post" });
     if (isReplying) return;
     setIsReplying(true);
     try {
-      const res = await fetch(`/api/posts/reply/${post_._id}`, {
+      const res = await fetch(`/api/posts/reply/${post._id}`, {
         method: "PUT",
         body: JSON.stringify({ text: reply }),
         headers: {
@@ -71,8 +85,15 @@ const Actions = ({ post: post_ }: ActionsProps) => {
         },
       });
       const data = await res.json();
+      console.log("data: ", data);
       if (data.error) return showToast({ status: "error", description: data.error });
-      setPost(data);
+      const updatedPosts = posts.map((p) => {
+        if (p._id === post._id) {
+          return { ...p, replies: [...p.replies, data] };
+        }
+        return p;
+      });
+      setPosts(updatedPosts);
       showToast({ status: "success", description: "Reply posted successfully" });
       onClose();
       setReply("");
