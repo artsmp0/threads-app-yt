@@ -12,5 +12,5 @@
     "outDir": "./dist"
   },
   "include": ["**/*.ts"],
-  "files": ["index.d.ts"]
+  "files": ["index.d.ts", "./router/router.ts"]
 }

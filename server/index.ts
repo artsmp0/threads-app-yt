@@ -5,6 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { connectDB } from "./db/connectDB";
 import userRouter from "./router/userRouter";
 import postRouter from "./router/postRouter";
+import messageRouter from "./router/messageRouter";
 
 dotenv.config();
 connectDB();
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
+app.use("/api/messages", messageRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
