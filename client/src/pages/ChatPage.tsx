@@ -6,11 +6,12 @@ import { MessageContainer } from "../components/MessageContainer";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilState } from "recoil";
-import { conversationsAtom } from "../atoms/messagesAtom";
+import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 
 export const ChatPage = () => {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [conversations, setConversations] = useRecoilState(conversationsAtom);
+  const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
   const showToast = useShowToast();
   useEffect(() => {
     const getConversations = async () => {
@@ -79,13 +80,14 @@ export const ChatPage = () => {
           {!loadingConversations &&
             conversations.map((conversation) => <Conversation key={conversation._id} conversation={conversation} />)}
         </Flex>
-        {false && (
+        {!selectedConversation?._id ? (
           <Flex flex={70} borderRadius={"md"} p={2} flexDir={"column"} alignItems={"center"} justifyContent={"center"} height={"400px"}>
             <GiConversation size={100} />
             <Text fontSize={20}>Select a conversation to start messaging</Text>
           </Flex>
+        ) : (
+          <MessageContainer />
         )}
-        <MessageContainer />
       </Flex>
     </Box>
   );

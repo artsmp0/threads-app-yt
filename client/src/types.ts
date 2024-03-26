@@ -25,3 +25,32 @@ export interface IPost {
     username: string;
   }[];
 }
+
+export interface IConversation {
+  _id: string;
+  participants: { profilePic: string; username: string; _id: string }[];
+  lastMessage: {
+    text: string;
+    sender: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  mock?: boolean;
+}
+
+export interface IMessage {
+  _id: string;
+  conversationId: string;
+  sender: string;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ISelectedConversation {
+  _id: string;
+  userId: string;
+  userProfilePic: string;
+  username: string;
+  mock?: boolean;
+}
