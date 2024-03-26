@@ -33,8 +33,6 @@ export interface IConversation {
     text: string;
     sender: string;
   };
-  createdAt: string;
-  updatedAt: string;
   mock?: boolean;
 }
 

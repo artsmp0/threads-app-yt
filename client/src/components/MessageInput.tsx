@@ -1,5 +1,5 @@
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/react";
-import { MouseEventHandler, useState } from "react";
+import { ReactEventHandler, useState } from "react";
 import { IoSendSharp } from "react-icons/io5";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedConversationAtom, conversationsAtom } from "../atoms/messagesAtom";
@@ -11,7 +11,7 @@ export const MessageInput = ({ setMessages }: { setMessages: any }) => {
   const selectedConversation = useRecoilValue(selectedConversationAtom);
   const setConversations = useSetRecoilState(conversationsAtom);
 
-  const handleSendMessage: MouseEventHandler = async (e) => {
+  const handleSendMessage: ReactEventHandler = async (e) => {
     e.preventDefault();
     if (!messageText) return;
     const res = await fetch("/api/messages", {
@@ -42,7 +42,7 @@ export const MessageInput = ({ setMessages }: { setMessages: any }) => {
     if (data.error) return showToast({ description: data.error, status: "error" });
   };
   return (
-    <form>
+    <form onSubmit={handleSendMessage}>
       <InputGroup>
         <Input w={"full"} placeholder="Type a message" value={messageText} onChange={(e) => setMessageText(e.target.value)} />
         <InputRightElement onClick={handleSendMessage} cursor={"pointer"}>

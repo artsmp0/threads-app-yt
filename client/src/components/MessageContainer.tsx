@@ -17,7 +17,10 @@ export const MessageContainer = () => {
     const getMessages = async () => {
       try {
         setLoadingMsgs(true);
-        if (selectedConversation?.mock) return;
+        if (selectedConversation?.mock) {
+          setMessages([]);
+          return;
+        }
         const res = await fetch(`/api/messages/${selectedConversation?.userId}`);
         const data = await res.json();
         if (data.error) return showToast({ description: data.error, status: "error" });
