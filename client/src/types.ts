@@ -10,12 +10,13 @@ export interface User {
   following: string[];
 }
 
-export interface Post {
+export interface IPost {
   _id: string;
   text: string;
   img?: string;
   likes: string[];
   createdAt: string;
+  postedBy: string;
   replies: {
     userId: string;
     text: string;

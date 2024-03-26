@@ -4,8 +4,11 @@ import Actions from "./Actions";
 import { useEffect, useState } from "react";
 import { Avatar, Box, Flex, Image, Text } from "@chakra-ui/react";
 import useShowToast from "../hooks/useShowToast";
-import { Post as IPost, User } from "../types";
+import { IPost, User } from "../types";
 import { formatDistanceToNow } from "date-fns";
+import { DeleteIcon } from "@chakra-ui/icons";
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
 
 interface PostProps {
   post: IPost;
@@ -14,6 +17,7 @@ interface PostProps {
 
 const Post = ({ post, postedBy }: PostProps) => {
   const [user, setUser] = useState<User>();
+  const currentUser = useRecoilValue(userAtom);
   const showToast = useShowToast();
   useEffect(() => {
     const getUser = async () => {
@@ -31,6 +35,24 @@ const Post = ({ post, postedBy }: PostProps) => {
     };
     getUser();
   }, [postedBy, showToast]);
+  const handleDeletePost = async (e: any) => {
+    try {
+      e.preventDefault();
+      if (!window.confirm("Are you sure you want to delete this post?")) return;
+
+      const res = await fetch(`/api/posts/${post._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.error) {
+        showToast({ description: data.error, status: "error" });
+        return;
+      }
+      showToast({ description: "Post deleted", status: "success" });
+    } catch (error: any) {
+      showToast({ description: error.message, status: "error" });
+    }
+  };
   if (!user) return null;
   return (
     <Link to={`/${user.username}/post/${post._id}`}>
@@ -89,6 +111,7 @@ const Post = ({ post, postedBy }: PostProps) => {
               <Text fontStyle={"xs"} color={"gray.light"}>
                 {formatDistanceToNow(post.createdAt)} ago
               </Text>
+              {currentUser?._id === user._id && <DeleteIcon onClick={handleDeletePost} />}
               <BsThreeDots />
             </Flex>
           </Flex>
