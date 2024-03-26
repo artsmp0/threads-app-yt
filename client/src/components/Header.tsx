@@ -46,7 +46,7 @@ function Header() {
       )}
 
       {!user && (
-        <Link as={RouterLink} onClick={() => setAuthScreen("signup")}>
+        <Link as={RouterLink} to={"/auth"} onClick={() => setAuthScreen("signup")}>
           Sign up
         </Link>
       )}
