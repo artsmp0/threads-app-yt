@@ -6,12 +6,8 @@
   transition: background-color 0.3s ease-in-out;
 }
 
-[data-theme="dark"] .icon-container:hover {
-  background-color: #1e1e1e;
-}
-
 .icon-container:hover {
-  background-color: #b1b1b1;
+  background-color: #1e1e1e;
 }
 
 ::-webkit-scrollbar {
