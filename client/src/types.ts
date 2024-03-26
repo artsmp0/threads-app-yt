@@ -18,6 +18,7 @@ export interface IPost {
   createdAt: string;
   postedBy: string;
   replies: {
+    _id: string;
     userId: string;
     text: string;
     userProfilePic: string;

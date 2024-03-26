@@ -15,17 +15,18 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { ReactEventHandler, useState } from "react";
-import { Post } from "../types";
+import { IPost } from "../types";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 
 interface ActionsProps {
-  post: Post;
+  post: IPost;
 }
 
 const Actions = ({ post: post_ }: ActionsProps) => {
   const currentUser = useRecoilValue(userAtom);
+  console.log("post_: ", post_);
   const [liked, setLiked] = useState(post_.likes.includes(currentUser?._id ?? ""));
   const showToast = useShowToast();
   const [post, setPost] = useState(post_);
