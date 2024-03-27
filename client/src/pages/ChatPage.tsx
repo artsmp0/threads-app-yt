@@ -9,6 +9,7 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { IConversation } from "../types";
+import { useSocket } from "../context/SocketContext";
 
 export const ChatPage = () => {
   const [loadingConversations, setLoadingConversations] = useState(true);
@@ -17,6 +18,7 @@ export const ChatPage = () => {
   const currentUser = useRecoilValue(userAtom);
   const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
   const [searchText, setSearchText] = useState("");
+  const { onlineUsers } = useSocket();
   const showToast = useShowToast();
   useEffect(() => {
     const getConversations = async () => {
@@ -134,7 +136,13 @@ export const ChatPage = () => {
               </Flex>
             ))}
           {!loadingConversations &&
-            conversations.map((conversation) => <Conversation key={conversation._id} conversation={conversation} />)}
+            conversations.map((conversation) => (
+              <Conversation
+                isOnline={onlineUsers.includes(conversation.participants[0]._id)}
+                key={conversation._id}
+                conversation={conversation}
+              />
+            ))}
         </Flex>
         {!selectedConversation?._id ? (
           <Flex flex={70} borderRadius={"md"} p={2} flexDir={"column"} alignItems={"center"} justifyContent={"center"} height={"400px"}>

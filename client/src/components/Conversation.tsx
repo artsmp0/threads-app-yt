@@ -5,7 +5,7 @@ import userAtom from "../atoms/userAtom";
 import { selectedConversationAtom } from "../atoms/messagesAtom";
 import { IConversation } from "../types";
 
-export const Conversation = ({ conversation }: { conversation: IConversation }) => {
+export const Conversation = ({ conversation, isOnline }: { conversation: IConversation; isOnline: boolean }) => {
   const user = conversation.participants[0];
   const lastMessage = conversation.lastMessage;
   const currentUser = useRecoilValue(userAtom);
@@ -43,7 +43,7 @@ export const Conversation = ({ conversation }: { conversation: IConversation }) 
           }}
           src={user.profilePic}
         >
-          <AvatarBadge boxSize="1em" bg="green.500" />
+          {isOnline ? <AvatarBadge boxSize="1em" bg="green.500" /> : ""}
         </Avatar>
       </WrapItem>
 
