@@ -32,6 +32,7 @@ export interface IConversation {
   lastMessage: {
     text: string;
     sender: string;
+    seen: boolean;
   };
   mock?: boolean;
 }
@@ -41,6 +42,7 @@ export interface IMessage {
   conversationId: string;
   sender: string;
   text: string;
+  seen: boolean;
   createdAt: string;
   updatedAt: string;
 }

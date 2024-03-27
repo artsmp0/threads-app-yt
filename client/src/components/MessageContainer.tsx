@@ -1,7 +1,7 @@
 import { Avatar, Divider, Flex, Image, Skeleton, SkeletonCircle, Text, useColorModeValue } from "@chakra-ui/react";
 import { Message } from "./Message";
 import { MessageInput } from "./MessageInput";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 import useShowToast from "../hooks/useShowToast";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +10,7 @@ import { IMessage } from "../types";
 import { useSocket } from "../context/SocketContext";
 export const MessageContainer = () => {
   const showToast = useShowToast();
-  const [selectedConversation] = useRecoilState(selectedConversationAtom);
+  const selectedConversation = useRecoilValue(selectedConversationAtom);
   const [loadingMsgs, setLoadingMsgs] = useState(true);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const currentUser = useRecoilValue(userAtom);
@@ -38,6 +38,33 @@ export const MessageContainer = () => {
       socket.off("newMessage");
     };
   }, [socket, selectedConversation]);
+
+  useEffect(() => {
+    const lastMessageIsFromOtherUser = messages.length && messages[messages.length - 1].sender !== currentUser?._id;
+    if (lastMessageIsFromOtherUser) {
+      socket?.emit("markMessagesAsSeen", {
+        conversationId: selectedConversation._id,
+        userId: selectedConversation.userId,
+      });
+    }
+
+    socket?.on("messageSeen", ({ conversationId }: { conversationId: string }) => {
+      if (selectedConversation._id === conversationId) {
+        setMessages((prev) => {
+          const updatedMessages = prev.map((message) => {
+            if (!message.seen) {
+              return {
+                ...message,
+                seen: true,
+              };
+            }
+            return message;
+          });
+          return updatedMessages;
+        });
+      }
+    });
+  }, [socket, currentUser?._id, messages, selectedConversation]);
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });

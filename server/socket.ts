@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import Message from "./model/messageModel";
+import Conversation from "./model/conversationModel";
 
 const app = express();
 const server = http.createServer(app);
@@ -18,11 +20,20 @@ export const getSocketId = (userId: string) => {
 };
 
 io.on("connection", (socket) => {
-  console.log("user connected", socket.id);
   const userId = socket.handshake.query.userId as string;
   if (userId !== "undefined") userSocketMap[userId] = socket.id;
   // broadcast to all users
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  socket.on("markMessagesAsSeen", async ({ conversationId, userId }: any) => {
+    try {
+      await Message.updateMany({ conversationId, seen: false }, { $set: { seen: true } });
+      await Conversation.updateOne({ _id: conversationId }, { $set: { "lastMessage.seen": true } });
+      io.to(userSocketMap[userId]).emit("messageSeen", { conversationId });
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
