@@ -43,8 +43,7 @@ export interface IMessage {
   sender: string;
   text: string;
   seen: boolean;
-  createdAt: string;
-  updatedAt: string;
+  img: string;
 }
 
 export interface ISelectedConversation {
