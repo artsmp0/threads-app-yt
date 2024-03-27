@@ -13,8 +13,8 @@ export const Message = ({ ownMessage, message }: { ownMessage: boolean; message:
       {ownMessage ? (
         <Flex gap={2} alignSelf={"flex-end"}>
           {message.text && (
-            <Flex bg={"green.800"} maxW={"350px"} p={1} borderRadius={"md"}>
-              <Text color={"white"}>{message.text}</Text>
+            <Flex bg={"green.800"} color={"white"} maxW={"350px"} p={1} borderRadius={"md"}>
+              <Text>{message.text}</Text>
               <Box alignSelf={"flex-end"} ml={1} color={message.seen ? "blue.400" : ""} fontWeight={"bold"}>
                 <BsCheck2All size={16} />
               </Box>

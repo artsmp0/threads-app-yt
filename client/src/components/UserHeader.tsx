@@ -5,13 +5,11 @@ import { User } from "../types";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Link as RouterLink } from "react-router-dom";
-import { useState } from "react";
-import useShowToast from "../hooks/useShowToast";
+import { useFollow } from "../hooks/useFollow";
 
 function UserHeader({ user }: { user: User | undefined }) {
   const toast = useToast();
   const currentUser = useRecoilValue(userAtom);
-  const showToast = useShowToast();
   const copyLink = () => {
     const currentURL = window.location.href;
     navigator.clipboard.writeText(currentURL).then(() => {
@@ -19,40 +17,8 @@ function UserHeader({ user }: { user: User | undefined }) {
     });
   };
 
-  const [following, setFollowing] = useState(user?.followers.includes(currentUser?._id ?? ""));
-  const [updating, setUpdating] = useState(false);
-  const handleFollowUnfollow = async () => {
-    if (!currentUser) {
-      showToast({ description: "Please login to follow", status: "error" });
-      return;
-    }
-    setUpdating(true);
-    try {
-      const res = await fetch(`/api/users/follow/${user?._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      if (data.error) {
-        showToast({ description: data.error, status: "error" });
-        return;
-      }
-      if (following) {
-        showToast({ description: `Unfollowed ${user?.name} successfully`, status: "success" });
-        user?.followers.pop();
-      } else {
-        showToast({ description: `Followed ${user?.name} successfully`, status: "success" });
-        user?.followers.push(currentUser._id);
-      }
-      setFollowing(!following);
-    } catch (error: any) {
-      showToast({ description: error, status: "error" });
-    } finally {
-      setUpdating(false);
-    }
-  };
+  const { following, handleFollowUnfollow, updating } = useFollow(user!);
+
   return (
     <VStack align={"start"} gap={4}>
       <Flex justify={"space-between"} w={"full"}>
