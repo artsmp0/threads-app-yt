@@ -4,7 +4,7 @@ import io, { Socket } from "socket.io-client";
 import userAtom from "../atoms/userAtom";
 
 export type SocketContextType = {
-  socket: any;
+  socket: Socket | null;
   onlineUsers: string[];
 };
 

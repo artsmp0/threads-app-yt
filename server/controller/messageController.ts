@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import Conversation from "../model/conversationModel";
 import Message from "../model/messageModel";
+import { getSocketId, io } from "../socket";
 
 export const sendMessage = async (req: Request, res: Response) => {
   try {
@@ -38,6 +39,11 @@ export const sendMessage = async (req: Request, res: Response) => {
         },
       }),
     ]);
+
+    const socketId = getSocketId(recipientId);
+    if (socketId) {
+      io.to(socketId).emit("newMessage", newMessage);
+    }
 
     res.status(201).json(newMessage);
   } catch (error: any) {
