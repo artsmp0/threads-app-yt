@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import userAtom from "../atoms/userAtom";
 import { IMessage } from "../types";
 import { useSocket } from "../context/SocketContext";
+import messageSound from "../assets/sounds/message.mp3";
+
 export const MessageContainer = () => {
   const showToast = useShowToast();
   const selectedConversation = useRecoilValue(selectedConversationAtom);
@@ -24,10 +26,19 @@ export const MessageContainer = () => {
         setMessages((prev) => [...prev, message]);
       }
 
+      // make a sound if the window is not focused
+      if (!document.hasFocus()) {
+        const sound = new Audio(messageSound);
+        sound.play();
+      }
+
       setConversations((prev) => {
         const updatedConversations = prev.map((conversation) => {
           if (conversation._id === message.conversationId) {
-            return { ...conversation, lastMessage: message };
+            return {
+              ...conversation,
+              lastMessage: message,
+            };
           }
           return conversation;
         });
